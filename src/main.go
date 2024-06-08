@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -13,8 +14,11 @@ func failOnError(err error, msg string) {
 }
 
 func main() {
+	go consumer()
+	go server()
+	var a string
 
-	server()
+	fmt.Scanln(&a)
 }
 
 func getQueue() (*amqp.Connection, *amqp.Channel, *amqp.Queue) {
@@ -44,5 +48,25 @@ func server() {
 		Body:        []byte("this is msg samlpe..."),
 	}
 	//doesnt have specific name so its default exchange n
-	ch.Publish("", q.Name, false, false, msg)
+	for {
+		ch.Publish("", q.Name, false, false, msg)
+	}
+}
+
+func consumer() {
+	conn, ch, q := getQueue()
+	defer conn.Close()
+	defer ch.Close()
+	msgs, err := ch.Consume(
+		q.Name,
+		"",    //consumer string used by rabbitmq to identify client
+		true,  //if true msg get deleted when acked auto
+		false, //exclusive or not
+		false,
+		false,
+		nil)
+	failOnError(err, "Failed to register a consumer")
+	for msg := range msgs {
+		log.Printf("Received message: %v", msg.Body)
+	}
 }
