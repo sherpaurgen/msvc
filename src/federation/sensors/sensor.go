@@ -50,7 +50,7 @@ func main() {
 	signal := time.Tick(dur)
 	buf := new(bytes.Buffer)
 	enc := gob.NewEncoder(buf)
-	for range signal {
+	for range signal { //loops every X millisecond
 		calcValue()
 		log.Printf("Reading sent value %v\n", value)
 		reading := dto.SensorMessage{
@@ -59,7 +59,7 @@ func main() {
 			Timestamp: time.Now(),
 		}
 		buf.Reset()
-		enc.Encode(reading)
+		enc.Encode(reading) //encodes the reading struct into the binary format and writes it to the buffer buf.
 
 		msg := amqp.Publishing{
 			Body: buf.Bytes(),
