@@ -44,6 +44,15 @@ func main() {
 	defer ch.Close()
 
 	dataQueue := utils.GetQueue(*name, ch)
+	sensorQueue := utils.GetQueue(utils.SensorListQueue, ch)
+	msg := amqp.Publishing{Body: []byte(*name)}
+	ch.Publish(
+		"",               //direct exchange as its empty
+		sensorQueue.Name, //routing key name used
+		false,
+		false,
+		msg,
+	)
 
 	dur, _ := time.ParseDuration(strconv.Itoa(1000/int(*freq)) + "ms") //eg here 1 second or 1000ms divided by 5ms
 
