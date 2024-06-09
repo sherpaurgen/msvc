@@ -48,9 +48,9 @@ func main() {
 	dur, _ := time.ParseDuration(strconv.Itoa(1000/int(*freq)) + "ms") //eg here 1 second or 1000ms divided by 5ms
 
 	signal := time.Tick(dur)
-	buf := new(bytes.Buffer)
-	enc := gob.NewEncoder(buf)
-	for range signal { //loops every X millisecond
+	buf := new(bytes.Buffer)   //here buf is io writer since buf implements Writer method
+	enc := gob.NewEncoder(buf) //A gob.Encoder is created with buf as its destination.
+	for range signal {         //loops every X millisecond
 		calcValue()
 		log.Printf("Reading sent value %v\n", value)
 		reading := dto.SensorMessage{
